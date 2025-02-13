@@ -1,4 +1,4 @@
-const Ewaste = require('../models/Ewaste');
+const Ewaste = require('../models/EWaste');
 const User = require('../models/User');
 const upload = require('../middleware/upload');
 const { cloudinary } = require('../utils/cloudinary');

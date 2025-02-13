@@ -1,6 +1,6 @@
 const DonationRequest = require('../models/DonationRequest');
 const User = require('../models/User');
-const Ewaste = require('../models/Ewaste');
+const Ewaste = require('../models/EWaste');
 
 // Create a donation request
 const createDonationRequest = async (req, res) => {

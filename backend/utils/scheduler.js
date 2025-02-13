@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const Ewaste = require("../models/Ewaste");
+const Ewaste = require("../models/EWaste");
 
 // Function to schedule a cron job
 const scheduleBiddingCheck = () => {
