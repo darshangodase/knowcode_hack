@@ -78,15 +78,16 @@ const placeBid = async (req, res) => {
 
 // Get All Bids for a Specific E-Waste Item
 const getBidsByEwasteId = async (req, res) => {
-  const { ewasteId } = req.params;
-
   try {
-    const bids = await Bid.find({ eWaste: ewasteId })
-      .populate("bidder", "walletAddress")
-      .sort({ amount: -1 }); // Sort bids by highest amount
-    res.status(200).json(bids);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { ewasteId } = req.params;
+    const bids = await Bid.find({ ewasteId })
+      .populate('bidder', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json(bids);
+  } catch (error) {
+    console.error('Error fetching bids:', error);
+    res.status(500).json({ message: 'Error fetching bids' });
   }
 };
 

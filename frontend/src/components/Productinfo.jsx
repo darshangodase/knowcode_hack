@@ -613,7 +613,7 @@ const ProductInfo = () => {
                             )}
                         </div>
                         {highestBid > 0 && (
-                            <div className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-full">
+                            <div className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-full mt-4">
                                 <span className="text-yellow-800 font-medium">Highest Bid:</span>
                                 <span className="text-xl font-bold text-yellow-900">₹{highestBid}</span>
                             </div>
@@ -621,7 +621,8 @@ const ProductInfo = () => {
                     </div>
 
                     {bids.length > 0 ? (
-                        <div className="space-y-4">
+                        <div className="space-y-4">Bid History
+
                             {bids.map((bid, index) => (
                                 <motion.div
                                     key={bid._id}

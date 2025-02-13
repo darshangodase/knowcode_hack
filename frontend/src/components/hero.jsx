@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { FaRecycle, FaLeaf, FaArrowRight, FaShieldAlt, FaUsers } from 'react-icons/fa';
+import { FaRecycle, FaLeaf, FaArrowRight, FaShieldAlt, FaUsers, FaArrowDown } from 'react-icons/fa';
 import { RiEarthLine, RiPlantLine } from 'react-icons/ri';
 import { BiDonateHeart } from 'react-icons/bi';
 
@@ -94,8 +94,8 @@ const HeroSection = () => {
     navigate("/main");
   };
 
-  const handleLearnMore = () => {
-    const element = document.getElementById('about-section');
+  const handleScrollToHowItWorks = () => {
+    const element = document.getElementById('how-it-works');
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -113,16 +113,13 @@ const HeroSection = () => {
       className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300
         bg-opacity-50 backdrop-blur-sm border border-gray-100"
     >
-      <div className={`text-transparent bg-clip-text bg-gradient-to-r ${color} 
-        flex justify-center lg:justify-start mb-2`}>
-        {icon}
+      <div className="flex flex-col items-center">
+        <div className="text-4xl mb-3 text-green-600">
+          {icon}
+        </div>
+        <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+        <div className="text-sm text-gray-600">{label}</div>
       </div>
-      {loading ? (
-        <div className="h-8 w-24 bg-gray-200 animate-pulse rounded mb-2"></div>
-      ) : (
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
-      )}
-      <div className="text-sm text-gray-600">{label}</div>
     </motion.div>
   );
 
@@ -204,15 +201,6 @@ const HeroSection = () => {
                 Get Started Now
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </motion.button>
-              <motion.button
-                onClick={handleLearnMore}
-                whileHover={{ scale: 1.05, boxShadow: "0 20px 30px -10px rgba(4, 120, 87, 0.2)" }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-green-600 text-green-600 px-8 py-4 rounded-full 
-                  font-semibold hover:bg-green-50 transition-all duration-300 hover:border-teal-500 hover:text-teal-500"
-              >
-                Learn More
-              </motion.button>
             </motion.div>
 
             {/* Stats */}
@@ -221,22 +209,19 @@ const HeroSection = () => {
               className="grid grid-cols-3 gap-6"
             >
               <StatCard
-                icon={<FaRecycle className="text-3xl" />}
+                icon={<FaRecycle />}
                 value={`${stats.totalEwaste} kg`}
                 label="E-Waste Processed"
-                color="from-green-400 to-green-600"
               />
               <StatCard
-                icon={<RiEarthLine className="text-3xl" />}
+                icon={<FaLeaf />}
                 value={`${stats.co2Saved} kg`}
                 label="CO₂ Saved"
-                color="from-blue-400 to-blue-600"
               />
               <StatCard
-                icon={<BiDonateHeart className="text-3xl" />}
+                icon={<FaUsers />}
                 value={stats.totalUsers}
                 label="Active Contributors"
-                color="from-purple-400 to-purple-600"
               />
             </motion.div>
           </motion.div>
@@ -281,21 +266,9 @@ const HeroSection = () => {
           hover:text-green-500 transition-colors duration-300"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-        onClick={handleLearnMore}
+        onClick={handleScrollToHowItWorks}
       >
-        <svg
-          className="w-6 h-6 text-green-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
+        <FaArrowDown className="w-6 h-6 text-green-600" />
       </motion.div>
     </motion.div>
   );

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import HeroSection from './hero';
 import HowWeWork from './howWeWork';
-import { Impact } from './impact';
+import Impact from './impact';
 import { useState } from 'react';
 import { LuCircleMinus, LuCirclePlus } from 'react-icons/lu';
 
@@ -97,21 +97,7 @@ const HomePage = () => {
       answer:
         "Simply log in to your account, select the items you want to recycle, and choose a pickup date. Our team will collect the items from your location.",
     },
-    {
-      question: "Is donating e-waste free?",
-      answer:
-        "Yes! You can donate your e-waste for free, and you may also receive reward points based on the type and condition of the items.",
-    },
-    {
-      question: "How is the e-waste processed after collection?",
-      answer:
-        "We partner with certified recycling facilities to ensure responsible disposal and recycling of e-waste, minimizing environmental impact.",
-    },
-    {
-      question: "Can I track my e-waste after donating?",
-      answer:
-        "Yes! You can track the status of your e-waste through your dashboard to see when it's collected and processed.",
-    },
+    
   ];
 
 
@@ -131,7 +117,7 @@ const HomePage = () => {
   });
 
   return (
-    <div className="bg-white min-h-screen w-full font-rubik">
+    <div className=" min-h-screen w-full font-rubik">
       {/* Hero Section */}
       <HeroSection />
 
@@ -201,7 +187,7 @@ const HomePage = () => {
         </div>
       </motion.footer> */}
 
-      <section className="min-h-screen py-12 px-6 bg-gray-100  font-rubik">
+      <section className="min-h-screen py-12 px-6 bg-gradient-to-br from-gray-50 to-green-50  font-rubik">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="font-poppins text-3xl font-semibold text-black  mb-6">
             Frequently Asked Questions

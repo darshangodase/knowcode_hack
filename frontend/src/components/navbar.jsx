@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom'; // Replaced useHistory with useNavigate
 import { HiMenu, HiX } from 'react-icons/hi';
@@ -12,6 +12,7 @@ const Navbar = () => {
   const [storedUser, setStoredUser] = useState(null);
   const [signin, setSignin] = useState(authenticated); // Track sign-in state
   const navigate = useNavigate(); // For redirection after login or logout
+  const dropdownRef = useRef(null); // Create a ref for the dropdown
 
   const handleUserData = async () => 
   {
@@ -76,11 +77,21 @@ const Navbar = () => {
     navigate('/'); // Redirect to homepage after logout
   };
 
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownOpen(false); // Close dropdown if clicked outside
+    }
+  };
+
   useEffect(() => {
     // If the user is authenticated, get user data and update the state
     if (authenticated && user) {
       handleUserData();
     }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [authenticated, user]); // Trigger when `authenticated` or `user` changes
 
   return (
@@ -106,8 +117,9 @@ const Navbar = () => {
             <ProfileDropdown
               isDropdownOpen={isDropdownOpen}
               setIsDropdownOpen={setIsDropdownOpen}
-              user={storedUser} // Use the storedUser state for user data
-              handleLogout={handleLogout} // Pass the logout function
+              user={storedUser}
+              handleLogout={handleLogout}
+              dropdownRef={dropdownRef}
             />
           ) : (
             <button onClick={handleLogin} className="text-green-700 font-medium">Sign In</button>
@@ -125,6 +137,7 @@ const Navbar = () => {
                 setIsDropdownOpen={setIsDropdownOpen}
                 user={storedUser}
                 handleLogout={handleLogout}
+                dropdownRef={dropdownRef}
               />
             ) : (
               <button onClick={handleLogin} className="text-green-700 font-medium">Sign In</button>
@@ -166,14 +179,20 @@ const NavLinks = () => (
   </ul>
 );
 
-const ProfileDropdown = ({ isDropdownOpen, setIsDropdownOpen, user, handleLogout }) => (
+const ProfileDropdown = ({ isDropdownOpen, setIsDropdownOpen, user, handleLogout, dropdownRef }) => (
   <div className="relative">
     <motion.button whileHover={{ scale: 1.1 }} onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
       <span className="text-sm font-semibold text-green-800">{user.name ? user.name.charAt(0).toUpperCase() : "U"}</span>
     </motion.button>
     <AnimatePresence>
       {isDropdownOpen && (
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50">
+        <motion.div
+          ref={dropdownRef}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50"
+        >
           <div className="px-4 py-2 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900">{user.name || "EcoWarrior"}</p>
             <p className="text-sm text-gray-500">{user.email || "eco@warrior.com"}</p>
