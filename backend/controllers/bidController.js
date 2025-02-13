@@ -13,7 +13,6 @@ const placeBid = async (req, res) => {
     if (!ewaste) {
       return res.status(404).json({ error: "E-Waste item not found" });
     }
-    console.log(ewaste);
 
     // Check if bidding is enabled and active
     if (!ewaste.biddingEnabled) {
@@ -26,30 +25,51 @@ const placeBid = async (req, res) => {
       return res.status(400).json({ error: "Bidding has ended for this item" });
     }
 
-    // Check if the bid amount is greater than the last bid
-    const lastBid = ewaste.lastBid || 0; // Default to 0 if no bids yet
-    const numericAmount = parseFloat(amount); // Ensure the amount is a number
-    if (isNaN(numericAmount) || numericAmount <= lastBid) {
-      return res
-        .status(400)
-        .json({ error: `Bid amount must be greater than the current highest bid (${lastBid})` });
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount)) {
+      return res.status(400).json({ error: "Invalid bid amount" });
     }
 
-    // Create a new bid
+    // Check if this is the first bid
+    const existingBids = await Bid.find({ eWaste: ewasteId });
+    const isFirstBid = existingBids.length === 0;
+
+    // Validate bid amount based on whether it's the first bid or not
+    if (isFirstBid) {
+      // First bid must be at least price + 1
+      if (numericAmount <= ewaste.price) {
+        return res.status(400).json({ 
+          error: `First bid must be greater than the item price. Minimum bid: ₹${ewaste.price + 1}` 
+        });
+      }
+    } else {
+      // Subsequent bids must be greater than the last bid
+      const lastBid = ewaste.lastBid;
+      if (numericAmount <= lastBid) {
+        return res.status(400).json({ 
+          error: `Bid amount must be greater than the current highest bid (₹${lastBid})` 
+        });
+      }
+    }
+
+    // Create and save the new bid
     const bid = new Bid({
       eWaste: ewasteId,
       bidder,
-      amount: numericAmount, // Store the numeric value
+      amount: numericAmount,
     });
-
-    // Save the bid
     await bid.save();
 
     // Update the e-waste item with the latest bid
-    ewaste.lastBid = numericAmount; // Store the last bid amount
+    ewaste.lastBid = numericAmount;
     await ewaste.save();
 
-    res.status(201).json({ message: "Bid placed successfully", bid });
+    res.status(201).json({ 
+      message: "Bid placed successfully", 
+      bid,
+      minimumNextBid: numericAmount + 1 
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

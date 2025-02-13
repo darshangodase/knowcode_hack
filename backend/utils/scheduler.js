@@ -5,10 +5,10 @@ const Ewaste = require("../models/Ewaste");
 const scheduleBiddingCheck = () => {
   // Schedule task to run every two minutes
   cron.schedule("*/1 * * * *", async () => {
-    console.log("Running bidding status scheduler...");
+    // console.log("Running bidding status scheduler...");
     try {
       const now = new Date();
-      console.log(now);
+      // console.log(now);
       
       // Find all e-waste items with active bidding that have expired
       const expiredBids = await Ewaste.find({
@@ -24,10 +24,10 @@ const scheduleBiddingCheck = () => {
         ewaste.statusHistory.push({ status: "stopped", timestamp: new Date() }); // Add to status history
         await ewaste.save(); // Save changes to the database
 
-        console.log(`Updated e-waste item ${ewaste._id} to "stopped".`);
+        // console.log(`Updated e-waste item ${ewaste._id} to "stopped".`);
       }
 
-      console.log("Bidding status scheduler completed.");
+      // console.log("Bidding status scheduler completed.");
     } catch (err) {
       console.error("Error running bidding status scheduler:", err.message);
     }

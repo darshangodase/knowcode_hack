@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { FaRecycle, FaLeaf, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
+import { FaRecycle, FaLeaf, FaArrowRight, FaShieldAlt, FaUsers } from 'react-icons/fa';
 import { RiEarthLine, RiPlantLine } from 'react-icons/ri';
 import { BiDonateHeart } from 'react-icons/bi';
 
@@ -59,22 +59,39 @@ const imageVariant = {
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalEwaste: 0,
+    co2Saved: 0,
+    totalUsers: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      // Fetch impact stats
+      const response = await fetch('http://localhost:3000/api/ewaste/impact-stats');
+      const data = await response.json();
+
+      if (data.success) {
+        setStats({
+          totalEwaste: data.stats.totalEwaste,
+          co2Saved: data.stats.co2Saved,
+          totalUsers: data.stats.donationCount + data.stats.saleCount // Using total items as user engagement metric
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGetStarted = () => {
-    const isLoggedIn = localStorage.getItem("userInfo");
-    if (isLoggedIn) {
-      navigate("/main");
-    } else {
-      toast.warning("Please log in to get started!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-    }
+    navigate("/main");
   };
 
   const handleLearnMore = () => {
@@ -82,39 +99,39 @@ const HeroSection = () => {
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const stats = [
-    {
-      icon: <FaRecycle className="text-3xl" />,
-      value: "10K+",
-      label: "Items Recycled",
-      color: "from-green-400 to-green-600"
-    },
-    {
-      icon: <RiEarthLine className="text-3xl" />,
-      value: "5000kg",
-      label: "CO₂ Saved",
-      color: "from-blue-400 to-blue-600"
-    },
-    {
-      icon: <BiDonateHeart className="text-3xl" />,
-      value: "2000+",
-      label: "Active Users",
-      color: "from-purple-400 to-purple-600"
-    },
-  ];
-
   const features = [
     { icon: <FaShieldAlt />, text: "Secure Platform" },
     { icon: <RiPlantLine />, text: "Eco-Friendly" },
     { icon: <FaLeaf />, text: "Rewards Program" },
   ];
 
+  const StatCard = ({ icon, value, label, color }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.05 }}
+      className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300
+        bg-opacity-50 backdrop-blur-sm border border-gray-100"
+    >
+      <div className={`text-transparent bg-clip-text bg-gradient-to-r ${color} 
+        flex justify-center lg:justify-start mb-2`}>
+        {icon}
+      </div>
+      {loading ? (
+        <div className="h-8 w-24 bg-gray-200 animate-pulse rounded mb-2"></div>
+      ) : (
+        <div className="text-2xl font-bold text-gray-900">{value}</div>
+      )}
+      <div className="text-sm text-gray-600">{label}</div>
+    </motion.div>
+  );
+
   return (
     <motion.div
       initial="hidden"
       animate="visible"
       variants={staggerContainer}
-      className="relative min-h-[80vh] flex flex-col justify-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-green-100 font-rubik"
+      className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-green-100 font-rubik"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -203,21 +220,24 @@ const HeroSection = () => {
               variants={fadeInUp}
               className="grid grid-cols-3 gap-6"
             >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300
-                    bg-gradient-to-br bg-opacity-50 backdrop-blur-sm border border-gray-100"
-                >
-                  <div className={`text-transparent bg-clip-text bg-gradient-to-r ${stat.color} 
-                    flex justify-center lg:justify-start mb-2`}>
-                    {stat.icon}
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
-                </motion.div>
-              ))}
+              <StatCard
+                icon={<FaRecycle className="text-3xl" />}
+                value={`${stats.totalEwaste} kg`}
+                label="E-Waste Processed"
+                color="from-green-400 to-green-600"
+              />
+              <StatCard
+                icon={<RiEarthLine className="text-3xl" />}
+                value={`${stats.co2Saved} kg`}
+                label="CO₂ Saved"
+                color="from-blue-400 to-blue-600"
+              />
+              <StatCard
+                icon={<BiDonateHeart className="text-3xl" />}
+                value={stats.totalUsers}
+                label="Active Contributors"
+                color="from-purple-400 to-purple-600"
+              />
             </motion.div>
           </motion.div>
 
@@ -227,7 +247,7 @@ const HeroSection = () => {
             className="relative flex justify-center order-1 lg:order-2"
           >
             <motion.div
-              variants={floatingAnimation}
+              // variants={floatingAnimation}
               initial="initial"
               animate="animate"
               className="relative w-full max-w-lg xl:max-w-xl"
@@ -247,7 +267,7 @@ const HeroSection = () => {
               <img
                 src="/bin.jpg"
                 alt="E-waste Recycling Illustration"
-                className="relative w-full rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-500
+                className="relative rounded-3xl shadow-2xl h-[14cm] w-[13cm]
                   border-4 border-white/50 backdrop-blur-sm"
               />
             </motion.div>

@@ -2,10 +2,12 @@
 const User = require('../models/User');
 
 const validateWalletAddress = async (req, res, next) => {
-  const walletAddress = req.headers['authorization']; // Make sure wallet address is passed here
-  console.log('Middleware: Validating wallet address', walletAddress);
+  console.log('Headers:', req.headers); // Debug log
+  const walletAddress = req.headers.authorization;
+
   if (!walletAddress) {
-    return res.status(400).json({ error: 'Wallet address missing from Authorization header' });
+    console.log('No wallet address provided');
+    return res.status(401).json({ error: 'No wallet address provided' });
   }
 
   try {
@@ -18,7 +20,7 @@ const validateWalletAddress = async (req, res, next) => {
 
     // Attach user object to request for later use in controller
     req.user = userExists;
-    console.log('Middleware: User validated', req.user);  
+    console.log('Validated wallet:', walletAddress); // Debug log
     next();
   } catch (err) {
     console.error('Error validating wallet address:', err);

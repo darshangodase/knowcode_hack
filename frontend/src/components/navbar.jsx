@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom'; // Replaced useHistory with useNavigate
 import { HiMenu, HiX } from 'react-icons/hi';
 import { usePrivy } from '@privy-io/react-auth';
@@ -8,40 +8,59 @@ import { usePrivy } from '@privy-io/react-auth';
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const coins = useMotionValue(250);
-  const roundedCoins = useTransform(coins, value => Math.round(value));
   const { login, authenticated, user, logout } = usePrivy();
   const [storedUser, setStoredUser] = useState(null);
   const [signin, setSignin] = useState(authenticated); // Track sign-in state
   const navigate = useNavigate(); // For redirection after login or logout
 
-  // Store user info in localStorage after login
-  const handleUserData = async () => {
+  const handleUserData = async () => 
+  {
     if (authenticated && user) {
       const userInfo = {
         name: user.google?.name,
-        email: user.google?.email, // Ensure the email is correctly extracted
+        email: user.google?.email,
         walletAddress: user.wallet?.address,
-        recycledItems: [], // If you have any recycled items to send, add them here
-        rewardsEarned: 0, // Default value if no rewards are provided
+        recycledItems: [], 
+        rewardsEarned: 0, 
       };
+      console.log('User Info:', userInfo);
+      console.log('Logged in fhydfufh...');
 
+      try{
+        const response = await fetch('http://localhost:3000/api/auth/login', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userInfo),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          console.log('Login successful:', data);
+          localStorage.setItem('userInfo', JSON.stringify(userInfo));
+          setStoredUser(userInfo);
+          setSignin(true); 
 
-      // Store the user info in localStorage
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+          }
+          else{
 
-      // Set the stored user info to state
-      setStoredUser(userInfo);
-      console.log('User Info:', storedUser);
-      setSignin(true); // Set sign-in state to true
+          }
+      }
+      catch(error){
+        console.error('Login error:', error);
+      }
     }
   };
 
   // Function to handle user login
   const handleLogin = async () => {
     try {
+      console.log('Logging in...');
+      
       await login(); // Opens the popup with multiple login methods
-      // Store user info after login
+      console.log('Logged in...');
+
       handleUserData();
     } catch (error) {
       console.error('Login failed:', error);
@@ -64,11 +83,6 @@ const Navbar = () => {
     }
   }, [authenticated, user]); // Trigger when `authenticated` or `user` changes
 
-  useEffect(() => {
-    const controls = animate(coins, 250, { duration: 5 });
-    return () => controls.stop();
-  }, [coins]);
-
   return (
     <div className="w-full font-rubik">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
@@ -87,7 +101,6 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8">
-          <CoinsDisplay roundedCoins={roundedCoins} rewardsEarned={storedUser?.rewardsEarned || 0} />
           <NavLinks />
           {signin ? (
             <ProfileDropdown
@@ -105,7 +118,6 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="md:hidden bg-white shadow-md py-4 space-y-4 flex flex-col items-center">
-            <CoinsDisplay roundedCoins={roundedCoins} rewardsEarned={storedUser?.rewardsEarned || 0} />
             <NavLinks />
             {signin ? (
               <ProfileDropdown
@@ -124,16 +136,9 @@ const Navbar = () => {
   );
 };
 
-const CoinsDisplay = ({ roundedCoins, rewardsEarned }) => (
-  <motion.div whileHover={{ scale: 1.1 }} className="flex items-center space-x-2 bg-green-50 px-4 py-2 rounded-lg">
-    <span className="text-green-700 font-medium">Coins:</span>
-    <motion.span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">{rewardsEarned}</motion.span>
-  </motion.div>
-);
-
 const NavLinks = () => (
   <ul className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-    {['Redeem Coin', 'Impact Dashboard', 'Leader Board'].map((item, index) => (
+    {[ 'Impact Dashboard', 'Leader Board'].map((item, index) => (
       <li key={index}>
         <Link
           to={`/${item.replace(/\s/g, '').toLowerCase()}`}

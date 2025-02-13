@@ -1,183 +1,136 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { FaTrophy, FaMedal, FaRecycle } from 'react-icons/fa';
 
-const LeaderBoard = () => {
-  // Sample data - replace with your actual data
-  const [leaderboardData] = useState([
-    { username: "EcoWarrior", coins: 15000, productsSold: 45 },
-    { username: "GreenHero", coins: 12500, productsSold: 38 },
-    { username: "EarthSaver", coins: 10000, productsSold: 30 },
-    { username: "RecyclePro", coins: 8500, productsSold: 25 },
-    { username: "EcoChampion", coins: 7200, productsSold: 22 },
-    { username: "WasteReducer", coins: 6800, productsSold: 20 },
-    { username: "GreenMaster", coins: 6500, productsSold: 18 },
-    { username: "EcoInnovator", coins: 6000, productsSold: 15 },
-    { username: "RecycleKing", coins: 5500, productsSold: 12 },
-    { username: "EarthGuardian", coins: 5000, productsSold: 10 },
-  ]);
+const Leaderboard = () => {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
-  };
+    useEffect(() => {
+        fetchLeaderboardData();
+    }, []);
 
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.3 }
-    }
-  };
+    const fetchLeaderboardData = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/users/leaderboard');
+            const data = await response.json();
+            
+            // Process users data to calculate total quantity and sort
+            const processedUsers = data.map(user => ({
+                ...user,
+                totalQuantity: user.recycledItems.reduce((total, item) => total + item.quantity, 0)
+            })).sort((a, b) => b.totalQuantity - a.totalQuantity);
 
-  const getRankStyle = (index) => {
-    switch (index) {
-      case 0:
-        return "bg-gradient-to-r from-yellow-300 to-yellow-500";
-      case 1:
-        return "bg-gradient-to-r from-gray-300 to-gray-400";
-      case 2:
-        return "bg-gradient-to-r from-amber-600 to-amber-700";
-      default:
-        return "bg-white hover:bg-gray-50";
-    }
-  };
+            setUsers(processedUsers);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching leaderboard data:', error);
+            setLoading(false);
+        }
+    };
 
-  const getRankIcon = (index) => {
-    switch (index) {
-      case 0:
-        return "👑";
-      case 1:
-        return "🥈";
-      case 2:
-        return "🥉";
-      default:
-        return index + 1;
-    }
-  };
+    const getRankIcon = (index) => {
+        switch (index) {
+            case 0:
+                return <FaTrophy className="text-yellow-400 text-2xl" />;
+            case 1:
+                return <FaMedal className="text-gray-400 text-2xl" />;
+            case 2:
+                return <FaMedal className="text-amber-600 text-2xl" />;
+            default:
+                return <span className="text-gray-600 font-bold">{index + 1}</span>;
+        }
+    };
 
-  return (
-    <div className="min-h-screen bg-green-50 py-24 px-4 sm:px-6 lg:px-8  font-rubik">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto"
-      >
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center mb-12"
+                >
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                        E-Waste Champions
+                    </h1>
+                    <p className="text-lg text-gray-600">
+                        Top contributors making a difference in e-waste management
+                    </p>
+                </motion.div>
 
-        <div className="text-center mb-12 ">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Eco<span className="text-green-600">Leaders</span>
-          </h1>
-          <p className="text-lg text-gray-600">
-            Top contributors making a difference in e-waste management
-          </p>
-        </div>
-
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3 pb-5">
-          <motion.div
-            variants={itemVariants}
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                Total Participants
-              </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                {leaderboardData.length}
-              </dd>
+                {loading ? (
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full">
+                                <thead>
+                                    <tr className="bg-green-50">
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Rank</th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">User</th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Items Recycled</th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Total Quantity (kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {users.map((user, index) => (
+                                        <motion.tr
+                                            key={user._id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className={index < 3 ? 'bg-green-50/50' : 'hover:bg-gray-50'}
+                                        >
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    {getRankIcon(index)}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <div className="h-10 w-10 flex-shrink-0">
+                                                        <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                            <span className="text-green-800 font-semibold">
+                                                                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="ml-4">
+                                                        <div className="text-sm font-medium text-gray-900">
+                                                            {user.name || 'Anonymous User'}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">
+                                                            {user.email || 'No email provided'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <FaRecycle className="text-green-500 mr-2" />
+                                                    <span className="text-sm text-gray-900">
+                                                        {user.recycledItems.length}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="text-sm font-medium text-gray-900">
+                                                    {user.totalQuantity.toFixed(2)} kg
+                                                </span>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </div>
-          </motion.div>
-
-          <motion.div
-            variants={itemVariants}
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5 sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                Total Coins Earned
-              </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                {leaderboardData
-                  .reduce((sum, user) => sum + user.coins, 0)
-                  .toLocaleString()}
-              </dd>
-            </div>
-          </motion.div>
-
-          <motion.div
-            variants={itemVariants}
-            className="bg-white overflow-hidden shadow rounded-lg"
-          >
-            <div className="px-4 py-5  sm:p-6">
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                Total Products Sold
-              </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                {leaderboardData
-                  .reduce((sum, user) => sum + user.productsSold, 0)
-                  .toLocaleString()}
-              </dd>
-            </div>
-          </motion.div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-4 bg-gray-800 text-white py-4 px-6">
-            <div className="font-semibold">Rank</div>
-            <div className="font-semibold">Username</div>
-            <div className="font-semibold text-right">Coins Earned</div>
-            <div className="font-semibold text-right">Products Sold</div>
-          </div>
-
-          {/* Table Body */}
-          <div className="divide-y divide-gray-200">
-            {leaderboardData.map((user, index) => (
-              <motion.div
-                key={user.username}
-                variants={itemVariants}
-                className={`grid grid-cols-4 py-4 px-6 items-center ${getRankStyle(index)} ${index < 3 ? 'text-white' : 'text-gray-900'
-                  }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{getRankIcon(index)}</span>
-                </div>
-                <div className="font-medium">{user.username}</div>
-                <div className="text-right">
-                  <span className="inline-flex items-center">
-                    {user.coins.toLocaleString()}
-                    <svg
-                      className="w-4 h-4 ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1.002-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.548.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029c-.472.786-.96.979-1.264.979-.304 0-.792-.193-1.264-.979a4.265 4.265 0 01-.264-.521H10a1 1 0 100-2H8.017a7.36 7.36 0 010-1H10a1 1 0 100-2H8.472c.08-.185.167-.36.264-.521z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                </div>
-                <div className="text-right">{user.productsSold}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats Section */}
-
-      </motion.div>
-    </div>
-  );
+    );
 };
 
-export default LeaderBoard;
+export default Leaderboard;

@@ -144,8 +144,10 @@ const HomePage = () => {
       >
         <HowWeWork />
       </motion.div>
+      <div className="hidden lg:block">
+        <Impact />
+      </div>
 
-      <Impact />
 
       {/* <motion.div
         ref={approachRef}

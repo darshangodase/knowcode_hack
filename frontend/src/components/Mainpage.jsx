@@ -5,12 +5,15 @@ import Products from './Products';
 import Scan from './Scan';
 import Profile from './profile';
 import { FaQrcode, FaBoxOpen, FaUser, FaBars, FaTimes, FaDotCircle, FaRecycle } from 'react-icons/fa';
+import ProductCard from './ProductCard';
+import { toast } from 'react-hot-toast';
 
 const MainPage = () => {
     const [activeComponent, setActiveComponent] = useState('products');
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [isExpanded, setIsExpanded] = useState(true);
     const dragControls = useDragControls();
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -202,10 +205,24 @@ const MainPage = () => {
         </motion.button>
     );
 
+    const handleDelete = (deletedId) => {
+        setProducts(products.filter(product => product._id !== deletedId));
+        toast.success('Product deleted successfully');
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 font-rubik">
             {renderComponent()}
             {isMobile ? <MobileNav /> : <FloatingSidebar />}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                    <ProductCard 
+                        key={product._id} 
+                        product={product} 
+                        onDelete={handleDelete}
+                    />
+                ))}
+            </div>
         </div>
     );
 };

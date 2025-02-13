@@ -367,93 +367,175 @@ const Scan = () => {
                         </div>
 
                         {/* Product Details Form */}
-                        <div className="space-y-4">
-                            <input
-                                type="text"
-                                name="itemName"
-                                value={productDetails.itemName}
-                                onChange={handleInputChange}
-                                placeholder="Item Name"
-                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            />
-                            <select
-                                name="category"
-                                value={productDetails.category}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value="">Select Category</option>
-                                <option value="electronics">Electronics</option>
-                                <option value="appliances">Appliances</option>
-                                <option value="computers">Computers</option>
-                                <option value="mobile">Mobile Devices</option>
-                            </select>
-                            <select
-                                name="condition"
-                                value={productDetails.condition}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value="">Select Condition</option>
-                                <option value="new">New</option>
-                                <option value="good">Good</option>
-                                <option value="fair">Fair</option>
-                                <option value="poor">Poor</option>
-                            </select>
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-6">
+                            {/* Item Name */}
+                            <div className="space-y-2">
+                                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700">
+                                    Item Name *
+                                </label>
                                 <input
-                                    type="number"
-                                    name="weight"
-                                    value={productDetails.weight}
+                                    id="itemName"
+                                    type="text"
+                                    name="itemName"
+                                    value={productDetails.itemName}
                                     onChange={handleInputChange}
-                                    placeholder="Weight (kg)"
+                                    placeholder="e.g., Old Laptop, Used Mobile Phone"
                                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                                />
-                                <input
-                                    type="number"
-                                    name="quantity"
-                                    value={productDetails.quantity}
-                                    onChange={handleInputChange}
-                                    placeholder="Quantity"
-                                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
                                 />
                             </div>
-                            <input
-                                type="text"
-                                name="location"
-                                value={productDetails.location}
-                                onChange={handleInputChange}
-                                placeholder="Location"
-                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            />
-                            <select
-                                name="donationOrSale"
-                                value={productDetails.donationOrSale}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option value="donate">Donate</option>
-                                <option value="sell">Sell</option>
-                            </select>
-                            <input
-                                type="number"
-                                name="price"
-                                value={productDetails.price}
-                                onChange={handleInputChange}
-                                placeholder="Price (in INR)"
-                                disabled={productDetails.donationOrSale === 'donate'}
-                                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${productDetails.donationOrSale === 'donate' ? 'bg-gray-100' : ''
-                                    }`}
-                            />
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    name="biddingEnabled"
-                                    checked={productDetails.biddingEnabled}
+
+                            {/* Category */}
+                            <div className="space-y-2">
+                                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                                    Category *
+                                </label>
+                                <select
+                                    id="category"
+                                    name="category"
+                                    value={productDetails.category}
                                     onChange={handleInputChange}
-                                    className="rounded text-green-500 focus:ring-green-500"
+                                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select a category</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Computers">Computers</option>
+                                    <option value="Mobile Devices">Mobile Devices</option>
+                                    <option value="Appliances">Appliances</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            {/* Condition */}
+                            <div className="space-y-2">
+                                <label htmlFor="condition" className="block text-sm font-medium text-gray-700">
+                                    Item Condition *
+                                </label>
+                                <select
+                                    id="condition"
+                                    name="condition"
+                                    value={productDetails.condition}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select condition</option>
+                                    <option value="New">New</option>
+                                    <option value="Like New">Like New</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Fair">Fair</option>
+                                    <option value="Poor">Poor</option>
+                                </select>
+                            </div>
+
+                            {/* Weight and Quantity */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+                                        Weight (kg) *
+                                    </label>
+                                    <input
+                                        id="weight"
+                                        type="number"
+                                        name="weight"
+                                        value={productDetails.weight}
+                                        onChange={handleInputChange}
+                                        placeholder="0.0"
+                                        min="0"
+                                        step="0.1"
+                                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+                                        Quantity *
+                                    </label>
+                                    <input
+                                        id="quantity"
+                                        type="number"
+                                        name="quantity"
+                                        value={productDetails.quantity}
+                                        onChange={handleInputChange}
+                                        placeholder="1"
+                                        min="1"
+                                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Location */}
+                            <div className="space-y-2">
+                                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                                    Location *
+                                </label>
+                                <input
+                                    id="location"
+                                    type="text"
+                                    name="location"
+                                    value={productDetails.location}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g., Mumbai, Maharashtra"
+                                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
                                 />
-                                <label className="text-sm text-gray-600">Enable Bidding</label>
+                            </div>
+
+                            {/* Donation or Sale */}
+                            <div className="space-y-2">
+                                <label htmlFor="donationOrSale" className="block text-sm font-medium text-gray-700">
+                                    Listing Type *
+                                </label>
+                                <select
+                                    id="donationOrSale"
+                                    name="donationOrSale"
+                                    value={productDetails.donationOrSale}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="donate">Donate</option>
+                                    <option value="sell">Sell</option>
+                                </select>
+                            </div>
+
+                            {/* Price (only shown if selling) */}
+                            {productDetails.donationOrSale === 'sell' && (
+                                <div className="space-y-2">
+                                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                                        Price (₹) *
+                                    </label>
+                                    <input
+                                        id="price"
+                                        type="number"
+                                        name="price"
+                                        value={productDetails.price}
+                                        onChange={handleInputChange}
+                                        placeholder="Enter price in INR"
+                                        min="0"
+                                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        required={productDetails.donationOrSale === 'sell'}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Bidding Option */}
+                            <div className="space-y-2">
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        id="biddingEnabled"
+                                        type="checkbox"
+                                        name="biddingEnabled"
+                                        checked={productDetails.biddingEnabled}
+                                        onChange={handleInputChange}
+                                        className="rounded text-green-500 focus:ring-green-500"
+                                    />
+                                    <label htmlFor="biddingEnabled" className="text-sm text-gray-700">
+                                        Enable Bidding
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

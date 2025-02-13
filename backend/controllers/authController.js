@@ -1,9 +1,7 @@
 const User = require('../models/User');
 
 const login = async (req, res) => {
-  const { userInfo } = req.body;
-
-  console.log('User Info:', userInfo);
+  const  userInfo  = req.body;
 
   // Check if user information exists
   if (!userInfo) {
@@ -23,8 +21,8 @@ const login = async (req, res) => {
         name: userInfo.name,
         email: userInfo.email,
         walletAddress: userInfo.walletAddress,
-        recycledItems: userInfo.recycledItems || [], // Handle case where no recycledItems are provided
-        rewardsEarned: userInfo.rewardsEarned || 0,  // Handle default reward
+        recycledItems: userInfo.recycledItems || [], 
+        rewardsEarned: userInfo.rewardsEarned || 0, 
       });
 
       // Save the user to the database

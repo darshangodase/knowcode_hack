@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const port =1000;
 const mongoose = require("mongoose");
 const eWasteRoutes = require('./routes/eWasteRoutes');
 const authRoutes = require('./routes/authRoutes');

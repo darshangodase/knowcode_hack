@@ -1,225 +1,237 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaMedal, FaRecycle, FaLeaf, FaCog } from 'react-icons/fa';
-import { RiEarthLine } from 'react-icons/ri';
-import { BiDonateHeart } from 'react-icons/bi';
+import { FaRecycle, FaHandshake, FaTimes } from 'react-icons/fa';
 
 const Profile = () => {
-  // State to store user data and sign-in state
-  const [user, setUser] = useState(null);
-  const [signin, setSignin] = useState(false);
+    const [userPosts, setUserPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [requests, setRequests] = useState([]);
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-  useEffect(() => {
-    // Check if user info is stored in localStorage
-    const storedUser = localStorage.getItem("userInfo");
+    useEffect(() => {
+        fetchUserPosts();
+    }, []);
 
-    if (storedUser) {
-      try {
-        // Parse and set the user data from localStorage
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setSignin(true);
-      } catch (error) {
-        console.error("Error parsing userInfo from localStorage", error);
-      }
-    } else {
-      setSignin(false);
-    }
-
-    // Listen for storage changes to dynamically update the state
-    const handleStorageChange = () => {
-      const updatedUser = localStorage.getItem("userInfo");
-      if (updatedUser) {
-        setUser(JSON.parse(updatedUser));
-        setSignin(true);
-      } else {
-        setUser(null);
-        setSignin(false);
-      }
+    const fetchUserPosts = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/ewaste/user-posts`, {
+                headers: {
+                    'Authorization': userInfo.walletAddress
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setUserPosts(data);
+            }
+        } catch (error) {
+            console.error('Error fetching user posts:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    window.addEventListener("storage", handleStorageChange);
+    const fetchRequests = async (postId) => {
+        try {
+            let donationData = [];
+            let bidsData = [];
+            
+            const donationResponse = await fetch(`http://localhost:3000/api/ewaste/${postId}/donation-requests`, {
+                headers: {
+                    'Authorization': userInfo.walletAddress
+                }
+            });
+            if (donationResponse.ok) {
+                donationData = await donationResponse.json();
+            }
 
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
+            const post = userPosts.find(p => p._id === postId);
+            if (post.donationOrSale === 'sale') {
+                const bidsResponse = await fetch(`http://localhost:3000/api/ewaste/${postId}/bids`, {
+                    headers: {
+                        'Authorization': userInfo.walletAddress
+                    }
+                });
+                if (bidsResponse.ok) {
+                    bidsData = await bidsResponse.json();
+                }
+            }
+
+            console.log('Fetched data:', { donations: donationData, bids: bidsData });
+
+            setRequests({
+                donations: donationData || [],
+                bids: bidsData || []
+            });
+            setSelectedPost(post);
+        } catch (error) {
+            console.error('Error fetching requests:', error);
+            setRequests({
+                donations: [],
+                bids: []
+            });
+        }
     };
-  }, []);
 
-  // Variants for framer-motion animation
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+    const RequestsModal = ({ post, requests, onClose }) => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">
+                        {post.donationOrSale === 'donate' ? 'Donation Requests' : 'Bids'}
+                    </h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                        <FaTimes />
+                    </button>
+                </div>
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
-  };
-
-  const achievements = [
-    {
-      icon: <FaMedal className="text-yellow-500" size={40} />,
-      title: "Top Recycler",
-      description: "Recycled over 100 items",
-      progress: 75
-    },
-    {
-      icon: <FaLeaf className="text-green-500" size={40} />,
-      title: "Eco Warrior",
-      description: "Saved 50kg of e-waste",
-      progress: 60
-    },
-    {
-      icon: <BiDonateHeart className="text-red-500" size={40} />,
-      title: "Generous Donor",
-      description: "Made 20 donations",
-      progress: 90
-    }
-  ];
-
-  return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 py-12 px-4 sm:px-6 lg:px-8 font-rubik"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Profile Header */}
-        <motion.div
-          variants={itemVariants}
-          className="relative bg-white rounded-3xl shadow-xl overflow-hidden mb-8"
-        >
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 opacity-90" />
-          <div className="absolute inset-0 bg-[url('/circuit-pattern.png')] opacity-10" />
-
-          <div className="relative px-8 py-12 sm:px-12 flex flex-col sm:flex-row items-center gap-8">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="w-32 h-32 rounded-full bg-white shadow-lg flex items-center justify-center"
-            >
-              {user?.profileImage ? (
-                <img
-                  src={user.profileImage}
-                  alt="Profile"
-                  className="w-28 h-28 rounded-full object-cover"
-                />
-              ) : (
-                <span className="text-5xl font-bold text-green-600">
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
-                </span>
-              )}
-            </motion.div>
-
-            <div className="text-center sm:text-left text-white">
-              <h1 className="text-3xl font-bold mb-2">{user?.name || "User Name"}</h1>
-              <p className="text-green-100 mb-4">{user?.email || "user@example.com"}</p>
-              <div className="flex flex-wrap gap-4">
-                <span className="px-4 py-2 bg-white/20 rounded-full text-sm backdrop-blur-sm">
-                  Level 5 Recycler
-                </span>
-                <span className="px-4 py-2 bg-white/20 rounded-full text-sm backdrop-blur-sm">
-                  Verified Member
-                </span>
-              </div>
+                {post.donationOrSale === 'donate' ? (
+                    <div className="space-y-4">
+                        {requests.donations && requests.donations.length > 0 ? (
+                            requests.donations.map((request) => (
+                                <div key={request._id} className="border rounded-lg p-4">
+                                    <div>
+                                        <p className="font-medium">{request.requester?.name || 'Anonymous'}</p>
+                                        <p className="text-gray-600">{request.message}</p>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            {new Date(request.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                No donation requests yet
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {requests.bids && requests.bids.length > 0 ? (
+                            requests.bids.map((bid) => (
+                                <div key={bid._id} className="border rounded-lg p-4">
+                                    <div>
+                                        <p className="font-medium">{bid.bidder?.name || 'Anonymous'}</p>
+                                        <p className="text-green-600 font-bold">₹{bid.amount}</p>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            {new Date(bid.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                No bids yet
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
-          </div>
-        </motion.div>
+        </div>
+    );
 
-        {/* Stats Grid */}
-        <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-        >
-          {[
-            { icon: <FaRecycle />, title: "Items Recycled", value: user?.recycledItems?.length || 0 },
-            { icon: <RiEarthLine />, title: "Environmental Impact", value: "100kg CO₂" },
-            { icon: <FaMedal />, title: "Coins Earned", value: user?.rewardsEarned || 0 },
-            { icon: <FaLeaf />, title: "Green Score", value: "850" }
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white p-6 rounded-2xl shadow-lg"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-lg text-green-600">
-                  {stat.icon}
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                {/* User Info Header */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                            <span className="text-2xl font-bold text-green-600">
+                                {userInfo?.name?.charAt(0).toUpperCase() || 'U'}
+                            </span>
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">
+                                {userInfo?.name || 'User'}
+                            </h1>
+                            <p className="text-gray-500">
+                                {userInfo?.email || 'No email provided'}
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                  <p className="text-gray-600 text-sm">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
 
-        {/* Achievements Section */}
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Achievements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {achievements.map((achievement, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.02 }}
-                className="bg-gradient-to-br from-green-50 to-white rounded-xl p-6 border border-green-100"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  {achievement.icon}
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{achievement.title}</h3>
-                    <p className="text-gray-500 text-sm">{achievement.description}</p>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${achievement.progress}%` }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                    className="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+                {/* User Posts Section */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <FaRecycle className="text-green-600" />
+                        Your E-Waste Posts
+                    </h2>
 
-        {/* Action Buttons */}
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-wrap justify-center gap-4"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-green-600 to-green-500 text-white px-8 py-3 rounded-full 
-              font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            Edit Profile
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="border-2 border-green-600 text-green-600 px-8 py-3 rounded-full 
-              font-semibold hover:bg-green-50 transition-all duration-300"
-          >
-            View Activity History
-          </motion.button>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
+                    {loading ? (
+                        <div className="flex justify-center py-8">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+                        </div>
+                    ) : userPosts.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            You haven't posted any e-waste items yet.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {userPosts.map((post) => (
+                                <motion.div
+                                    key={post._id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
+                                >
+                                    <img
+                                        src={post.imageUrl}
+                                        alt={post.itemName}
+                                        className="w-full h-48 object-cover"
+                                    />
+                                    <div className="p-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                            {post.itemName}
+                                        </h3>
+                                        <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                                            <span>{post.category}</span>
+                                            <span>{post.weight} kg</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                post.donationOrSale === 'donate' 
+                                                    ? 'bg-green-100 text-green-800' 
+                                                    : 'bg-blue-100 text-blue-800'
+                                            }`}>
+                                                {post.donationOrSale === 'donate' ? 'Donation' : `₹${post.price}`}
+                                            </span>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                post.biddingStatus === 'active' 
+                                                    ? 'bg-yellow-100 text-yellow-800' 
+                                                    : 'bg-gray-100 text-gray-800'
+                                            }`}>
+                                                {post.biddingEnabled 
+                                                    ? `Bidding ${post.biddingStatus}` 
+                                                    : 'No Bidding'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => fetchRequests(post._id)}
+                                        className="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center justify-center gap-2"
+                                    >
+                                        <FaHandshake />
+                                        View {post.donationOrSale === 'donate' ? 'Requests' : 'Bids'}
+                                    </button>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Requests Modal */}
+            {selectedPost && (
+                <RequestsModal
+                    post={selectedPost}
+                    requests={requests}
+                    onClose={() => setSelectedPost(null)}
+                />
+            )}
+        </div>
+    );
 };
 
 export default Profile;

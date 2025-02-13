@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FaFilter, FaSort, FaSearch, FaDonate, FaShoppingCart, FaClock } from 'react-icons/fa';
+import { MdVerified } from 'react-icons/md';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -162,16 +163,35 @@ const Products = () => {
                   alt={product.itemName}
                   className="w-full h-48 object-cover"
                 />
-                {product.biddingEnabled && product.donationOrSale !== 'donate' && (
-                  <div className="absolute top-2 right-2 bg-yellow-400/90 backdrop-blur-sm text-yellow-900 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-                    Bidding Active
-                  </div>
-                )}
+                <div className="absolute top-2 right-2">
+                  {product.donationOrSale === 'sell' ? (
+                    product.biddingEnabled && (
+                      <div className={`backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                        product.biddingStatus === 'active' 
+                          ? 'bg-yellow-400/90 text-yellow-900'
+                          : 'bg-gray-400/90 text-gray-900'
+                      }`}>
+                        <MdVerified className="text-base" />
+                        {product.biddingStatus === 'active' ? 'Bidding Active' : 'Bidding Stopped'}
+                      </div>
+                    )
+                  ) : (
+                    <div className={`backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                      product.donationStatus === 'completed' 
+                        ? 'bg-green-400/90 text-green-900'
+                        : 'bg-blue-400/90 text-blue-900'
+                    }`}>
+                      <MdVerified className="text-base" />
+                      {product.donationStatus === 'completed' ? 'Donation Complete' : 'Available for Donation'}
+                    </div>
+                  )}
+                </div>
                 <div className="absolute top-2 left-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium shadow-lg ${product.donationOrSale === 'donate'
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
+                    product.donationOrSale === 'donate'
                       ? 'bg-green-400/90 text-green-900'
                       : 'bg-blue-400/90 text-blue-900'
-                    }`}>
+                  }`}>
                     {product.donationOrSale === 'donate' ? 'Donation' : `₹${product.price}`}
                   </span>
                 </div>
