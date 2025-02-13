@@ -10,7 +10,7 @@ const {
   acceptDonationRequest,
   acceptBid,
   getBids
-} = require('../controllers/ewasteController');
+} = require('../controllers/eWasteController');
 const upload = require('../middleware/upload');
 const validateWalletAddress = require('../middleware/validateWallet');
 const { createDonationRequest, getDonationRequests } = require('../controllers/donationController');
