@@ -1,5 +1,5 @@
 const Bid = require("../models/Bid");
-const Ewaste = require("../models/Ewaste");
+const Ewaste = require("../models/EWaste");
 
 // Place a Bid
 const placeBid = async (req, res) => {
