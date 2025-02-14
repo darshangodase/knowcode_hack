@@ -8,8 +8,8 @@ import { useState } from 'react';
 import { LuCircleMinus, LuCirclePlus } from 'react-icons/lu';
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  hidden: { opacity: 1, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2} },
 };
 
 const staggerContainer = {

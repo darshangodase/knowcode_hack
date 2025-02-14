@@ -2,7 +2,6 @@ const User = require('../models/User');
 const Ewaste = require('../models/EWaste');
 
 const getAllUsers = async (req, res) => {
-    console.log("hitted")
     try {
         const users = await User.find()
             .populate({
@@ -22,7 +21,6 @@ const getAllUsers = async (req, res) => {
                 itemsRecycled: user.recycledItems.length 
             };
         }).sort((a, b) => b.totalQuantity - a.totalQuantity); 
-        console.log(processedUsers)
         res.json({ success: true, users: processedUsers });
     } catch (error) {
         console.error('Error fetching users:', error);

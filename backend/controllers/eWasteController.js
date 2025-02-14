@@ -98,7 +98,6 @@ const getAllEwaste = async (req, res) => {
 const getEwasteById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('Received request for e-waste ID:', id); // Log received ID
 
     // Validate ID format
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -107,7 +106,6 @@ const getEwasteById = async (req, res) => {
     }
 
     const ewaste = await Ewaste.findById(id);
-    console.log('Found e-waste:', ewaste); // Log found item
 
     if (!ewaste) {
       console.log('E-waste not found for ID:', id);
@@ -182,7 +180,6 @@ const deleteEwaste = async (req, res) => {
   const userWalletAddress = req.user.walletAddress;
 
   try {
-    console.log('Delete attempt:', { id, userWalletAddress }); // Debug log
 
     const ewaste = await Ewaste.findById(id);
     if (!ewaste) {
@@ -208,7 +205,6 @@ const deleteEwaste = async (req, res) => {
       { $pull: { recycledItems: id } }
     );
 
-    console.log('E-waste deleted successfully');
     res.status(200).json({ message: 'E-Waste item deleted successfully' });
   } catch (err) {
     console.error('Error in deleteEwaste:', err);
@@ -223,7 +219,6 @@ const updateBiddingStatus = async (req, res) => {
   const userWalletAddress = req.user.walletAddress;
 
   try {
-    console.log('Update bidding status attempt:', { id, biddingStatus, userWalletAddress }); // Debug log
 
     const ewaste = await Ewaste.findById(id);
     if (!ewaste) {
@@ -241,7 +236,6 @@ const updateBiddingStatus = async (req, res) => {
     ewaste.biddingStatus = biddingStatus;
     await ewaste.save();
 
-    console.log('Bidding status updated successfully');
     res.status(200).json({ 
       message: 'Bidding status updated successfully',
       biddingStatus: ewaste.biddingStatus 
@@ -257,7 +251,6 @@ const getImpactStats = async (req, res) => {
   try {
     // Get all e-waste items
     const allEwaste = await Ewaste.find({});
-    console.log('Found e-waste items:', allEwaste.length); // Debug log
     
     // Calculate statistics
     const stats = {
@@ -285,7 +278,6 @@ const getImpactStats = async (req, res) => {
     // Calculate CO2 saved (1.44 kg CO₂ per 1 kg e-waste)
     stats.co2Saved = stats.totalEwaste * 1.44;
 
-    console.log('Calculated stats:', stats); // Debug log
 
     res.json({
       success: true,
@@ -309,13 +301,11 @@ const getImpactStats = async (req, res) => {
 const getUserPosts = async (req, res) => {
     try {
         const walletAddress = req.user.walletAddress;
-        console.log('Fetching posts for wallet:', walletAddress); // Debug log
 
         // Find posts directly using walletAddress
         const posts = await Ewaste.find({ walletAddress })
             .sort({ createdAt: -1 });
 
-        console.log('Found posts:', posts.length); // Debug log
         res.json(posts);
     } catch (error) {
         console.error('Error in getUserPosts:', error);
@@ -411,13 +401,11 @@ const acceptBid = async (req, res) => {
 const getBids = async (req, res) => {
     try {
         const { ewasteId } = req.params;
-        console.log('Fetching bids for ewaste:', ewasteId); // Debug log
 
         const bids = await Bid.find({ ewaste: ewasteId })
             .populate('bidder', 'name email walletAddress')
             .sort('-amount');
 
-        console.log('Found bids:', bids.length); // Debug log
         res.json(bids);
     } catch (error) {
         console.error('Error in getBids:', error);
