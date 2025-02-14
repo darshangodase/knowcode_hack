@@ -354,33 +354,57 @@ const acceptDonationRequest = async (req, res) => {
 };
 
 const acceptBid = async (req, res) => {
-    try {
-        const { bidId } = req.params;
-        const bid = await Bid.findById(bidId)
-            .populate('ewaste');
-
-        if (!bid) {
-            return res.status(404).json({ error: 'Bid not found' });
-        }
-
-        // Verify ownership
-        if (bid.ewaste.walletAddress !== req.user.walletAddress) {
-            return res.status(403).json({ error: 'Unauthorized' });
-        }
-
-        bid.status = 'accepted';
-        await bid.save();
-
-        // Update e-waste status
-        const ewaste = bid.ewaste;
-        ewaste.status = 'sold';
-        ewaste.finalPrice = bid.amount;
-        await ewaste.save();
-
-        res.json({ message: 'Bid accepted' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const { bidId } = req.params;
+    const bid = await Bid.findById(bidId);
+    
+    if (!bid) {
+      return res.status(404).json({ error: 'Bid not found' });
     }
+
+    const ewaste = await Ewaste.findById(bid.eWaste);
+    if (!ewaste) {
+      return res.status(404).json({ error: 'E-waste item not found' });
+    }
+
+    // Check if user is authorized
+    if (ewaste.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to accept this bid' });
+    }
+
+    // Check if any bid is already accepted
+    const existingAcceptedBid = await Bid.findOne({ 
+      eWaste: ewaste._id, 
+      status: 'accepted' 
+    });
+
+    if (existingAcceptedBid) {
+      return res.status(400).json({ error: 'A bid has already been accepted for this item' });
+    }
+
+    // Update the bid status
+    bid.status = 'accepted';
+    await bid.save();
+
+    // Update all other bids to rejected
+    await Bid.updateMany(
+      { 
+        eWaste: ewaste._id, 
+        _id: { $ne: bidId } 
+      },
+      { status: 'rejected' }
+    );
+
+    // Update e-waste status
+    ewaste.status = 'sold';
+    ewaste.biddingStatus = 'completed';
+    await ewaste.save();
+
+    res.json({ message: 'Bid accepted successfully', bid });
+  } catch (error) {
+    console.error('Error accepting bid:', error);
+    res.status(500).json({ error: 'Failed to accept bid' });
+  }
 };
 
 // Add this new controller function
@@ -401,6 +425,162 @@ const getBids = async (req, res) => {
     }
 };
 
+// Add this new controller function
+const getUserAcceptedRequests = async (req, res) => {
+  try {
+    const walletAddress = req.user.walletAddress;
+
+    // Find all user's e-waste posts
+    const userPosts = await Ewaste.find({ walletAddress });
+    
+    const acceptedRequests = {
+      donations: [],
+      bids: []
+    };
+
+    // Get accepted donation requests
+    for (const post of userPosts) {
+      if (post.donationOrSale === 'donate') {
+        const donationRequest = await DonationRequest.findOne({ 
+          ewaste: post._id, 
+          status: 'accepted' 
+        }).populate('requester', 'name email walletAddress');
+        
+        if (donationRequest) {
+          acceptedRequests.donations.push({
+            postId: post._id,
+            itemName: post.itemName,
+            category: post.category,
+            weight: post.weight,
+            location: post.location,
+            imageUrl: post.imageUrl,
+            request: {
+              id: donationRequest._id,
+              requester: {
+                name: donationRequest.requester.name,
+                email: donationRequest.requester.email,
+                walletAddress: donationRequest.requester.walletAddress
+              },
+              message: donationRequest.message,
+              status: donationRequest.status,
+              createdAt: donationRequest.createdAt
+            }
+          });
+        }
+      } else {
+        // Get accepted bids
+        const acceptedBid = await Bid.findOne({ 
+          eWaste: post._id, 
+          status: 'accepted' 
+        }).populate('bidder', 'name email walletAddress');
+        
+        if (acceptedBid) {
+          acceptedRequests.bids.push({
+            postId: post._id,
+            itemName: post.itemName,
+            category: post.category,
+            weight: post.weight,
+            price: post.price,
+            location: post.location,
+            imageUrl: post.imageUrl,
+            bid: {
+              id: acceptedBid._id,
+              amount: acceptedBid.amount,
+              bidder: {
+                name: acceptedBid.bidder.name,
+                email: acceptedBid.bidder.email,
+                walletAddress: acceptedBid.bidder.walletAddress
+              },
+              status: acceptedBid.status,
+              createdAt: acceptedBid.createdAt
+            }
+          });
+        }
+      }
+    }
+
+    res.json(acceptedRequests);
+  } catch (error) {
+    console.error('Error getting accepted requests:', error);
+    res.status(500).json({ error: 'Failed to get accepted requests' });
+  }
+};
+
+// Add this new controller function
+const getUserAcceptedBidsAndRequests = async (req, res) => {
+  try {
+    const walletAddress = req.user.walletAddress;
+    const user = await User.findOne({ walletAddress });
+
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const myAcceptedRequests = {
+      myAcceptedBids: [],
+      myAcceptedDonations: []
+    };
+
+    // Find my accepted bids on others' posts
+    const acceptedBids = await Bid.find({ 
+      bidder: user._id,
+      status: 'accepted'
+    }).populate({
+      path: 'eWaste',
+      select: 'itemName category weight price location imageUrl walletAddress'
+    });
+
+    // Find my accepted donation requests on others' posts
+    const acceptedDonations = await DonationRequest.find({
+      requester: user._id,
+      status: 'accepted'
+    }).populate({
+      path: 'ewaste',
+      select: 'itemName category weight location imageUrl walletAddress'
+    });
+
+    // Format bids data - Add null checks
+    myAcceptedRequests.myAcceptedBids = acceptedBids
+      .filter(bid => bid.eWaste) // Only include bids where eWaste exists
+      .map(bid => ({
+        postId: bid.eWaste._id,
+        itemName: bid.eWaste.itemName || 'Unknown Item',
+        category: bid.eWaste.category || 'Uncategorized',
+        weight: bid.eWaste.weight || 0,
+        price: bid.eWaste.price || 0,
+        location: bid.eWaste.location || 'Unknown Location',
+        imageUrl: bid.eWaste.imageUrl || '',
+        ownerWallet: bid.eWaste.walletAddress || 'Unknown',
+        bidAmount: bid.amount || 0,
+        bidDate: bid.createdAt
+      }));
+
+    // Format donation requests data - Add null checks
+    myAcceptedRequests.myAcceptedDonations = acceptedDonations
+      .filter(donation => donation.ewaste) // Only include donations where ewaste exists
+      .map(donation => ({
+        postId: donation.ewaste._id,
+        itemName: donation.ewaste.itemName || 'Unknown Item',
+        category: donation.ewaste.category || 'Uncategorized',
+        weight: donation.ewaste.weight || 0,
+        location: donation.ewaste.location || 'Unknown Location',
+        imageUrl: donation.ewaste.imageUrl || '',
+        ownerWallet: donation.ewaste.walletAddress || 'Unknown',
+        message: donation.message || '',
+        requestDate: donation.createdAt
+      }));
+
+    res.json(myAcceptedRequests);
+  } catch (error) {
+    console.error('Error getting user accepted bids and requests:', error);
+    res.status(500).json({ 
+      error: 'Failed to get accepted bids and requests',
+      details: error.message 
+    });
+  }
+};
+
 module.exports = {
   createEwaste,
   getAllEwaste,
@@ -413,5 +593,7 @@ module.exports = {
   getUserPosts,
   acceptDonationRequest,
   acceptBid,
-  getBids
+  getBids,
+  getUserAcceptedRequests,
+  getUserAcceptedBidsAndRequests
 };

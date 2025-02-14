@@ -9,6 +9,11 @@ const bidSchema = new mongoose.Schema(
       required: true, 
       min: [1, "Bid amount must be at least 1"] 
     },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending'
+    }
   },
   { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );

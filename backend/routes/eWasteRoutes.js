@@ -9,7 +9,9 @@ const {
   getUserPosts,
   acceptDonationRequest,
   acceptBid,
-  getBids
+  getBids,
+  getUserAcceptedRequests,
+  getUserAcceptedBidsAndRequests
 } = require('../controllers/eWasteController');
 const upload = require('../middleware/upload');
 const validateWalletAddress = require('../middleware/validateWallet');
@@ -34,5 +36,9 @@ router.get('/:ewasteId/donation-requests', validateWalletAddress, getDonationReq
 router.post('/:ewasteId/donation-request', validateWalletAddress, createDonationRequest);
 router.post('/donation-request/:requestId/accept', validateWalletAddress, acceptDonationRequest);
 router.post('/bid/:bidId/accept', validateWalletAddress, acceptBid);
+
+// Add this route
+router.get('/user/accepted-requests', validateWalletAddress, getUserAcceptedRequests);
+router.get('/user/my-accepted-requests', validateWalletAddress, getUserAcceptedBidsAndRequests);
 
 module.exports = router;

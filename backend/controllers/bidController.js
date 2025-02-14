@@ -80,10 +80,13 @@ const placeBid = async (req, res) => {
 const getBidsByEwasteId = async (req, res) => {
   try {
     const { ewasteId } = req.params;
-    const bids = await Bid.find({ ewasteId })
-      .populate('bidder', 'name email')
-      .sort({ createdAt: -1 });
+    console.log('Fetching bids for ewaste:', ewasteId); // Debug log
 
+    const bids = await Bid.find({ eWaste: ewasteId })
+      .populate('bidder', 'name email walletAddress')
+      .sort('-amount');
+
+    console.log('Found bids:', bids); // Debug log
     res.json(bids);
   } catch (error) {
     console.error('Error fetching bids:', error);

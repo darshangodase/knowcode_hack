@@ -20,44 +20,9 @@ const staggerContainer = {
   },
 };
 
-const floatingAnimation = {
-  initial: { y: 0 },
-  animate: {
-    y: [-10, 10],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      repeatType: "reverse",
-      ease: "easeInOut",
-    },
-  },
-};
 
-const textVariant = {
-  hidden: { opacity: 0, x: -50 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.8,
-      ease: "easeOut"
-    }
-  },
-};
 
-const imageVariant = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.8,
-      ease: "easeOut"
-    }
-  },
-};
-
-const HeroSection = () => {
+const Hero = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalEwaste: 0,
@@ -73,7 +38,7 @@ const HeroSection = () => {
   const fetchStats = async () => {
     try {
       // Fetch impact stats
-      const response = await fetch('http://localhost:3000/api/ewaste/impact-stats');
+      const response = await fetch('https://knowcode-hack.onrender.com/api/ewaste/impact-stats');
       const data = await response.json();
 
       if (data.success) {
@@ -232,10 +197,9 @@ const HeroSection = () => {
             className="relative flex justify-center order-1 lg:order-2"
           >
             <motion.div
-              // variants={floatingAnimation}
               initial="initial"
               animate="animate"
-              className="relative w-full max-w-lg xl:max-w-xl"
+              className="relative w-full max-w-lg xl:max-w-xl hidden sm:block" // Hide on mobile, show on sm+
             >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-teal-300/30 rounded-3xl blur-2xl"
@@ -252,11 +216,11 @@ const HeroSection = () => {
               <img
                 src="/bin.jpg"
                 alt="E-waste Recycling Illustration"
-                className="relative rounded-3xl shadow-2xl h-[14cm] w-[13cm]
-                  border-4 border-white/50 backdrop-blur-sm"
+                className="relative rounded-3xl shadow-2xl h-[14cm] w-[13cm] border-4 border-white/50 backdrop-blur-sm"
               />
             </motion.div>
           </motion.div>
+
         </div>
       </div>
 
@@ -274,4 +238,4 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
+export default Hero;

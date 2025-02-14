@@ -6,7 +6,7 @@ import { Route, Routes } from 'react-router-dom';
 import LeaderBoard from './components/leaderBoard';
 import ImpactDashboard from './components/impactDashboard';
 import Profile from './components/profile';
-import Footer from './components/footer';
+import Footer from './components/Footer';
 import Login from './components/Login';
 import MainPage from './components/Mainpage';
 import { ToastContainer, toast } from 'react-toastify';

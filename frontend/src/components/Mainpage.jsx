@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast';
 const MainPage = () => {
     const [activeComponent, setActiveComponent] = useState('products');
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
     const dragControls = useDragControls();
     const [products, setProducts] = useState([]);
 

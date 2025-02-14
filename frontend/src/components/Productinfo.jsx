@@ -23,13 +23,12 @@ const ProductInfo = () => {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        fetchProductDetails();
-        fetchBidHistory();
-        const interval = setInterval(() => {
-            fetchProductDetails();
-            fetchBidHistory();
-        }, 30000); // Refresh every 30 seconds
-        return () => clearInterval(interval);
+        if (id) {
+            Promise.all([
+                fetchProductDetails(),
+                fetchBidHistory()
+            ]);
+        }
     }, [id]);
 
     useEffect(() => {
@@ -76,21 +75,18 @@ const ProductInfo = () => {
 
     const fetchBidHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/bid/${id}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch bid history');
-            }
+            const response = await fetch(`http://localhost:3000/api/bids/${id}`);
             const data = await response.json();
-            setBids(data);
-            
-            // Set highest bid
-            if (data.length > 0) {
-                const maxBid = Math.max(...data.map(bid => bid.amount));
-                setHighestBid(maxBid);
+            console.log('Bid history:', data); // Debug log
+            if (response.ok) {
+                setBids(data);
+                // Update highest bid if there are bids
+                if (data.length > 0) {
+                    setHighestBid(Math.max(...data.map(bid => bid.amount)));
+                }
             }
         } catch (error) {
             console.error('Error fetching bid history:', error);
-            toast.error('Failed to fetch bid history');
         }
     };
 

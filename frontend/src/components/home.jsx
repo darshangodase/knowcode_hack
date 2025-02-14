@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import HeroSection from './hero';
+import HeroSection from './Hero';
 import HowWeWork from './howWeWork';
-import Impact from './impact';
+import Impact from './Impact';
 import { useState } from 'react';
 import { LuCircleMinus, LuCirclePlus } from 'react-icons/lu';
 
