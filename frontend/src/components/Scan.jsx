@@ -218,7 +218,7 @@ const Scan = () => {
             // Log the actual data being sent
          
 
-            const response = await fetch('http://localhost:3000/api/ewaste/create', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/create`, {
                 method: 'POST',
                 headers: {
                     'Authorization': walletAddress,

@@ -12,7 +12,7 @@ const cors = require("cors");
 dotenv.config();
 app.use(express.json());
 
-app.use(cors());
+app.use(cors({ origin: 'e-wastex.netlify.app', credentials: true })); 
 
 
 mongoose.connect(process.env.MONGO_URI).then(() => {

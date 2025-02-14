@@ -23,7 +23,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/ewaste/all');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/all`);
       const data = await response.json();
       setProducts(data);
       setLoading(false);

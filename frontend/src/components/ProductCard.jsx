@@ -16,7 +16,7 @@ const ProductCard = ({ product, onDelete }) => {
 
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
-        const response = await fetch(`http://localhost:3000/api/ewaste/${product._id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${product._id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': userInfo.walletAddress,

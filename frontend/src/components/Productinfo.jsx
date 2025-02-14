@@ -38,7 +38,7 @@ const ProductInfo = () => {
     const fetchProductDetails = async () => {
         try {
       
-            const response = await fetch(`http://localhost:3000/api/ewaste/${id}`);
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${id}`);
         
 
             if (!response.ok) {
@@ -59,7 +59,7 @@ const ProductInfo = () => {
 
     const fetchBidHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/api/bids/${id}`);
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bids/${id}`);
             const data = await response.json();
          
             if (response.ok) {
@@ -115,7 +115,7 @@ const ProductInfo = () => {
         });
 
         try {
-            const response = await fetch(`http://localhost:3000/api/bid/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bid/${id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ const ProductInfo = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/bid/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bid/${id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ const ProductInfo = () => {
         try {
            
 
-            const response = await fetch(`http://localhost:3000/api/ewaste/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': userInfo.walletAddress,
@@ -254,7 +254,7 @@ const ProductInfo = () => {
         });
 
         try {
-            const response = await fetch(`http://localhost:3000/api/ewaste/${product._id}/status`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${product._id}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': userInfo.walletAddress,
@@ -307,7 +307,7 @@ const ProductInfo = () => {
         const loadingToast = toast.loading('Sending donation request...');
 
         try {
-            const response = await fetch(`http://localhost:3000/api/ewaste/${id}/donation-request`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${id}/donation-request`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { FaRecycle, FaLeaf, FaArrowRight, FaShieldAlt, FaUsers, FaArrowDown } from 'react-icons/fa';
 import { RiEarthLine, RiPlantLine } from 'react-icons/ri';
-import { BiDonateHeart } from 'react-icons/bi';
+
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 50 },

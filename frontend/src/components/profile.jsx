@@ -38,8 +38,7 @@ const Profile = () => {
 
   const fetchUserPosts = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/ewaste/user-posts`,
+     const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/user-posts`,
         {
           headers: {
             Authorization: userInfo.walletAddress,
@@ -65,7 +64,7 @@ const Profile = () => {
       if (post.donationOrSale === "donate") {
         // Fetch donation requests
         response = await fetch(
-          `http://localhost:3000/api/ewaste/${postId}/donation-requests`,
+          `${import.meta.env.VITE_API_BASE_URL}/api/ewaste/${postId}/donation-requests`,
           {
             headers: {
               Authorization: userInfo.walletAddress,
@@ -74,7 +73,7 @@ const Profile = () => {
         );
       } else {
         // Fetch bids for sale items
-        response = await fetch(`http://localhost:3000/api/bids/${postId}`, {
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/bids/${postId}`, {
           headers: {
             Authorization: userInfo.walletAddress,
           },
@@ -94,7 +93,7 @@ const Profile = () => {
   const fetchAcceptedRequests = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/ewaste/user/accepted-requests`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/ewaste/user/accepted-requests`,
         {
           headers: {
             Authorization: userInfo.walletAddress,
@@ -113,7 +112,7 @@ const Profile = () => {
   const fetchMyAcceptedRequests = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/ewaste/user/my-accepted-requests`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/ewaste/user/my-accepted-requests`,
         {
           headers: {
             Authorization: userInfo.walletAddress,
@@ -147,7 +146,7 @@ const Profile = () => {
           ? `/api/ewaste/donation-request/${requestId}/accept`
           : `/api/ewaste/bid/${requestId}/accept`;
 
-        const response = await fetch(`http://localhost:3000${endpoint}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
           method: 'POST',
           headers: {
             'Authorization': userInfo.walletAddress,

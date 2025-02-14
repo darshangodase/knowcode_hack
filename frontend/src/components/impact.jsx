@@ -17,7 +17,7 @@ const Impact = () => {
 
     const fetchImpactData = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/ewaste/impact-stats');
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ewaste/impact-stats`);
             const data = await response.json();
             if (data.success) {
                 setStats({

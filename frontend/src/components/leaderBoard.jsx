@@ -13,7 +13,7 @@ const Leaderboard = () => {
 
     const fetchLeaderboardData = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/dashboard/leaderboard');
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/dashboard/leaderboard`);
             const data = await response.json();
             setUsers(data.users);
             setLoading(false);
