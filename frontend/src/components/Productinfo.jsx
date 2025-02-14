@@ -31,31 +31,15 @@ const ProductInfo = () => {
         }
     }, [id]);
 
-    useEffect(() => {
-        if (product && userInfo) {
-            console.log('Product Details:', {
-                productUser: product.user,
-                currentUserWallet: userInfo.walletAddress,
-                isOwner: userInfo.walletAddress === product.user
-            });
-        }
-    }, [product, userInfo]);
 
-    useEffect(() => {
-        if (product && userInfo) {
-            console.log('Ownership Check:', {
-                productWalletAddress: product.walletAddress,
-                userWalletAddress: userInfo.walletAddress,
-                isOwner: product.walletAddress === userInfo.walletAddress
-            });
-        }
-    }, [product, userInfo]);
+
+  
 
     const fetchProductDetails = async () => {
         try {
-            console.log('Fetching product with ID:', id); // Log the ID being requested
+      
             const response = await fetch(`http://localhost:3000/api/ewaste/${id}`);
-            console.log('Response status:', response.status); // Log response status
+        
 
             if (!response.ok) {
                 console.error('Error response:', await response.text()); // Log error response
@@ -63,7 +47,7 @@ const ProductInfo = () => {
             }
 
             const data = await response.json();
-            console.log('Received product data:', data); // Log received data
+          
             setProduct(data);
             setLoading(false);
         } catch (error) {
@@ -77,7 +61,7 @@ const ProductInfo = () => {
         try {
             const response = await fetch(`http://localhost:3000/api/bids/${id}`);
             const data = await response.json();
-            console.log('Bid history:', data); // Debug log
+         
             if (response.ok) {
                 setBids(data);
                 // Update highest bid if there are bids
@@ -107,8 +91,7 @@ const ProductInfo = () => {
             setShowBidConfirm(false);
             return;
         }
-        console.log(bidAmountNum);
-        console.log(highestBid);
+      
 
         // Enhanced bid validation with better error messages
         if (Number(bidAmountNum) <= Number(highestBid)) {
@@ -222,7 +205,7 @@ const ProductInfo = () => {
 
     const handleDelete = async (id) => {
         try {
-            console.log('Attempting to delete:', id); // Debug log
+           
 
             const response = await fetch(`http://localhost:3000/api/ewaste/${id}`, {
                 method: 'DELETE',
@@ -238,7 +221,7 @@ const ProductInfo = () => {
             }
 
             const data = await response.json();
-            console.log('Delete response:', data); // Debug log
+       
 
             toast.success('Item deleted successfully! 🎉');
             navigate('/main');

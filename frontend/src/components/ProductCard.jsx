@@ -9,10 +9,7 @@ const ProductCard = ({ product, onDelete }) => {
   const isOwner = userInfo && userInfo.walletAddress === product.user;
 
   // Debug logs
-  console.log('Product User:', product.user);
-  console.log('Current User:', userInfo?.walletAddress);
-  console.log('Is Owner:', isOwner);
-
+ 
   const handleDelete = async (e) => {
     e.preventDefault(); // Prevent navigation
     e.stopPropagation(); // Prevent event bubbling

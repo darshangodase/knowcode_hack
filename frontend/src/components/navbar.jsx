@@ -24,9 +24,7 @@ const Navbar = () => {
         recycledItems: [], 
         rewardsEarned: 0, 
       };
-      console.log('User Info:', userInfo);
-      console.log('Logged in fhydfufh...');
-
+    
       try{
         const response = await fetch('http://localhost:3000/api/auth/login', { 
           method: 'POST',
@@ -57,10 +55,10 @@ const Navbar = () => {
   // Function to handle user login
   const handleLogin = async () => {
     try {
-      console.log('Logging in...');
+   
       
       await login(); // Opens the popup with multiple login methods
-      console.log('Logged in...');
+     
 
       handleUserData();
     } catch (error) {

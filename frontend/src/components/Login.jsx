@@ -25,7 +25,6 @@ const Login = () => {
         rewardsEarned: 0, // Default value if no rewards are provided
       };
 
-      console.log('User Info:', userInfo);
 
       // Store the user info in localStorage
       localStorage.setItem('userInfo', JSON.stringify(userInfo));

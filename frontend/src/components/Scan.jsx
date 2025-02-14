@@ -216,10 +216,7 @@ const Scan = () => {
             });
 
             // Log the actual data being sent
-            console.log('Sending data:');
-            for (let pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`);
-            }
+         
 
             const response = await fetch('http://localhost:3000/api/ewaste/create', {
                 method: 'POST',
@@ -230,7 +227,7 @@ const Scan = () => {
             });
 
             const responseText = await response.text();
-            console.log('Raw server response:', responseText);
+          
 
             let data;
             try {
@@ -244,7 +241,7 @@ const Scan = () => {
                 throw new Error(data.error || data.message || 'Upload failed');
             }
 
-            console.log('Upload successful:', data);
+          
             toast.success('Product uploaded successfully!');
 
             // Reset form with correct enum value

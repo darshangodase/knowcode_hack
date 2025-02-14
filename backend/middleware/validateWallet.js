@@ -2,7 +2,6 @@
 const User = require('../models/User');
 
 const validateWalletAddress = async (req, res, next) => {
-  console.log('Headers:', req.headers); // Debug log
   const walletAddress = req.headers.authorization;
 
   if (!walletAddress) {
@@ -20,7 +19,7 @@ const validateWalletAddress = async (req, res, next) => {
 
     // Attach user object to request for later use in controller
     req.user = userExists;
-    console.log('Validated wallet:', walletAddress); // Debug log
+   
     next();
   } catch (err) {
     console.error('Error validating wallet address:', err);

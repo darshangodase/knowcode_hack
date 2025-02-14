@@ -46,7 +46,6 @@ import React from 'react'
 
 function card  ({username,btnText="value not found when btnText not passed"}) {        /* In React, props (short for properties) are a fundamental mechanism for passing data between components. */
     /* Default in btnText */
-    console.log(username);
     
         return (
     

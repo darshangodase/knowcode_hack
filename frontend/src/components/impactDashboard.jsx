@@ -17,12 +17,12 @@ function ImpactDashboard() {
 
     const fetchImpactStats = async () => {
         try {
-            console.log('Fetching impact stats...'); // Debug log
+            
             const response = await fetch('http://localhost:3000/api/ewaste/impact-stats');
-            console.log('Response status:', response.status); // Debug log
+          
             
             const data = await response.json();
-            console.log('Received data:', data); // Debug log
+          
 
             if (data.success) {
                 setStats(data.stats);
