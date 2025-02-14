@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaRecycle, FaHandshake, FaTimes, FaUser, FaEnvelope, FaWallet, FaMedal } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 
 const Profile = () => {
     const [userPosts, setUserPosts] = useState([]);
@@ -41,17 +42,28 @@ const Profile = () => {
     const fetchRequests = async (postId) => {
         try {
             let response;
-            // Fetch bids for sale items
-            response = await fetch(`http://localhost:3000/api/bids/${postId}`, {
-                headers: {
-                    'Authorization': userInfo.walletAddress
-                }
-            });
+            const post = userPosts.find(post => post._id === postId);
+            
+            if (post.donationOrSale === 'donate') {
+                // Fetch donation requests
+                response = await fetch(`http://localhost:3000/api/ewaste/${postId}/donation-requests`, {
+                    headers: {
+                        'Authorization': userInfo.walletAddress
+                    }
+                });
+            } else {
+                // Fetch bids for sale items
+                response = await fetch(`http://localhost:3000/api/bids/${postId}`, {
+                    headers: {
+                        'Authorization': userInfo.walletAddress
+                    }
+                });
+            }
             
             const data = await response.json();
             if (response.ok) {
                 setRequests(data);
-                setSelectedPost(userPosts.find(post => post._id === postId));
+                setSelectedPost(post);
             }
         } catch (error) {
             console.error('Error fetching requests:', error);
@@ -75,54 +87,93 @@ const Profile = () => {
                         </button>
                     </div>
 
-                    {post.donationOrSale === 'sale' && (
-                        <div className="space-y-4">
-                            {requests && requests.length > 0 ? (
-                                requests.map((bid) => (
-                                    <motion.div
-                                        key={bid._id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="border rounded-lg p-4 hover:bg-gray-50"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="font-medium text-gray-900">{bid.bidder?.name || 'Anonymous'}</p>
-                                                <p className="text-green-600 font-bold text-lg">₹{bid.amount}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    {new Date(bid.createdAt).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                            {bid.status === 'pending' && (
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-                                                        onClick={() => handleBidAction(bid._id, 'accept')}
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                    <button
-                                                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                                        onClick={() => handleBidAction(bid._id, 'reject')}
-                                                    >
-                                                        Reject
-                                                    </button>
-                                                </div>
+                    <div className="space-y-4">
+                        {requests && requests.length > 0 ? (
+                            requests.map((request) => (
+                                <motion.div
+                                    key={request._id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="border rounded-lg p-4 hover:bg-gray-50"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-medium text-gray-900">
+                                                {post.donationOrSale === 'donate' 
+                                                    ? request.requester?.name || formatWalletAddress(request.requester?.walletAddress)
+                                                    : request.bidder?.name || formatWalletAddress(request.bidder?.walletAddress)
+                                                }
+                                            </p>
+                                            {post.donationOrSale === 'sell' && (
+                                                <p className="text-green-600 font-bold text-lg">₹{request.amount}</p>
                                             )}
+                                            {post.donationOrSale === 'donate' && request.message && (
+                                                <p className="text-gray-600 mt-1">{request.message}</p>
+                                            )}
+                                            <p className="text-sm text-gray-500">
+                                                {new Date(request.createdAt).toLocaleDateString()}
+                                            </p>
                                         </div>
-                                    </motion.div>
-                                ))
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    No bids received yet
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                        {request.status === 'pending' && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+                                                    onClick={() => handleRequestAction(request._id, 'accept', post.donationOrSale)}
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                                    onClick={() => handleRequestAction(request._id, 'reject', post.donationOrSale)}
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                No {post.donationOrSale === 'donate' ? 'donation requests' : 'bids'} received yet
+                            </div>
+                        )}
+                    </div>
                 </div>
             </motion.div>
         </div>
     );
+
+    const formatWalletAddress = (address) => {
+        if (!address) return 'Anonymous';
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    };
+
+    const handleRequestAction = async (requestId, action, type) => {
+        try {
+            const endpoint = type === 'donate' 
+                ? `/api/ewaste/donation-request/${requestId}/${action}`
+                : `/api/ewaste/bid/${requestId}/${action}`;
+            
+            const response = await fetch(`http://localhost:3000${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': userInfo.walletAddress,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                toast.success(`${type === 'donate' ? 'Donation request' : 'Bid'} ${action}ed successfully`);
+                fetchRequests(selectedPost._id); // Refresh the requests
+            } else {
+                throw new Error('Failed to process request');
+            }
+        } catch (error) {
+            console.error('Error processing request:', error);
+            toast.error('Failed to process request');
+        }
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },

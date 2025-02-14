@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const Ewaste = require('../models/Ewaste');
+const Ewaste = require('../models/EWaste');
 
 const getAllUsers = async (req, res) => {
     console.log("hitted")
