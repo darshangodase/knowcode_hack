@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Fix CORS configuration
 app.use(cors({ 
-  origin: ['https://e-wastex.netlify.app', 'http://localhost:5173','https://ewaste-x.netlify.app'],
+  origin: ['https://e-wastex.netlify.app', 'http://localhost:5173','https://ewaste-x.netlify.app','https://ewastex.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
