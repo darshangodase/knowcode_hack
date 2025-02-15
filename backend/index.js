@@ -36,6 +36,12 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use('/api/bids', bidRoutes);
 
 
+// setup for cron job  to keep server active -> set for each 25 min 
+app.get("/", (req, res) => {
+  res.json({ message: "Hello, world!" });
+});
+
+
 app.listen(3000, () => {
   console.log(`Server is running on port ${3000}`);
 });
